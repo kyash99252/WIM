@@ -5,6 +5,7 @@ import "./index.css";
 import App from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
 import ServiceDetails from "./pages/ServiceDetails.jsx";
+import Booking from "./pages/Booking.jsx";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/services/:serviceName",
     element: <ServiceDetails/>,
+  },
+  {
+    path: "/booking",
+    element: <Booking/>
   }
 ]);
 

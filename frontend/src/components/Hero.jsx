@@ -16,8 +16,10 @@ const Hero = () => {
   const navigate = useNavigate();
 
   const handleServiceClick = (serviceName) => {
-    navigate(`/services/${serviceName}`);
+    const encodedServiceName = encodeURIComponent(serviceName);
+    navigate(`/services/${encodedServiceName}`);
   };
+
 
   return (
     <div className="flex mx-20">

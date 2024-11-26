@@ -38,7 +38,7 @@ const Navbar = () => {
             value={locationQuery}
             onChange={(e) => setLocationQuery(e.target.value)}
             placeholder="Mumbai"
-            className="w-full outline-none bg-transparent"
+            className="w-full outline-none bg-transparent border-0 hover:border-0"
           />
           <button
             onClick={() => handleSearch(locationQuery)}
@@ -57,7 +57,7 @@ const Navbar = () => {
             value={serviceQuery}
             onChange={(e) => setServiceQuery(e.target.value)}
             placeholder="Search services..."
-            className="w-full outline-none bg-transparent"
+            className="w-full outline-none bg-transparent border-0 hover:border-0"
           />
           <button onClick={() => handleSearch(serviceQuery)} className="hidden">
             Search
