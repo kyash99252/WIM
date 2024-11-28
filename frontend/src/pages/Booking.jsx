@@ -8,6 +8,8 @@ import {
 } from "@stripe/react-stripe-js";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaymentStatusDialog from "../components/PaymentStatusDialog";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const stripePromise = loadStripe(import.meta.env.VITE_APP_STRIPE_PUBLISHABLE_KEY);
 
@@ -41,12 +43,44 @@ function BookingFormContent() {
     }));
   };
 
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text("Booking Details", 20, 20);
+
+    // Form Data Content
+    doc.setFontSize(12);
+    doc.text(`Name: ${formData.name}`, 20, 40);
+    doc.text(`Phone Number: ${formData.phoneNumber}`, 20, 50);
+    doc.text(`Email: ${formData.email}`, 20, 60);
+    doc.text(`Address: ${formData.address}`, 20, 70);
+    doc.text(`Preferred Date & Time: ${formData.preferredDateTime}`, 20, 80);
+    doc.text(`Service: ${serviceName}`, 20, 90);
+    doc.text(`Plan: ${plan?.name || "N/A"}`, 20, 100);
+    doc.text(`Total Price: ${plan?.priceMonthly || "$0"}`, 20, 110);
+
+    // Save the PDF
+    doc.save("booking-details.pdf");
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false); // Close the dialog
+    if (paymentStatus === "success") {
+      navigate("/"); // Redirect to home or desired location if payment succeeds
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements) return;
 
     setProcessing(true);
     setError(null);
+
+    // Generate and download the PDF immediately
+    generatePDF();
 
     try {
       const amount = plan?.priceMonthly ? plan.priceMonthly * 100 : 0;
@@ -73,6 +107,7 @@ function BookingFormContent() {
       }
 
       const { clientSecret } = await response.json();
+
       const { error } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -88,6 +123,20 @@ function BookingFormContent() {
         return;
       }
 
+      const orderResponse = await fetch("http://localhost:5000/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          serviceName,
+          plan: plan?.name || "Unknown Plan",
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error(`Error saving order: ${orderResponse.statusText}`);
+      }
+
       setProcessing(false);
       setPaymentStatus("success");
       setDialogOpen(true);
@@ -96,13 +145,6 @@ function BookingFormContent() {
       setProcessing(false);
       setPaymentStatus("failure");
       setDialogOpen(true);
-    }
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
-    if (paymentStatus === "success") {
-      navigate("/");
     }
   };
 

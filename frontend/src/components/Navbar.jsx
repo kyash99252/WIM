@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { FaLocationArrow } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import UserContext from "../context/UserContext";
 
 const Navbar = () => {
   const [locationQuery, setLocationQuery] = useState("");
   const [serviceQuery, setServiceQuery] = useState("");
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
 
   const handleSearch = (query) => {
     if (query) {
@@ -64,14 +66,23 @@ const Navbar = () => {
           </button>
         </div>
 
-        <button
-          className="border border-slate-500 rounded-lg px-4 hover:bg-black hover:text-white relative overflow-hidden"
-          onClick={(e) => {
-            navigate("/login");
-          }}
-        >
-          Login
-        </button>
+        {user ? (
+          <button
+            className="border border-slate-500 rounded-lg px-4 hover:bg-black hover:text-white relative overflow-hidden"
+            onClick={() => {
+              navigate("/dashboard");
+            }}
+          >
+            Dashboard
+          </button>
+        ) : (
+          <button
+            className="border border-slate-500 rounded-lg px-4 hover:bg-black hover:text-white relative overflow-hidden"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+        )}
       </div>
     </div>
   );
